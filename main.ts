@@ -1,12 +1,12 @@
 // ====================================================================
-// SETTINGS DECODER SUITE EXTENSION (STABLE COMPLETE RELEASE)
+// SETTINGS DECODER SUITE EXTENSION (ZERO-ERROR TEXT SUITE)
 // ====================================================================
 
 //% color="#e91e63" icon="\uf1de" block="Settings Decoder"
 namespace settingsDecoder {
 
     // ==========================================
-    // 1. IMAGE SUITE
+    // 1. IMAGE ENCODERS & DECODERS
     // ==========================================
 
     /**
@@ -30,7 +30,7 @@ namespace settingsDecoder {
     }
 
     /**
-     * Decode an image asset from a text string registry record
+     * Decode an image asset from a text string registry record (Oval Reporter)
      */
     //% blockId="sd_decode_image"
     //% block="decode image from record $name"
@@ -74,7 +74,7 @@ namespace settingsDecoder {
     }
 
     // ==========================================
-    // 2. LOCATION SUITE
+    // 2. LOCATION ENCODERS & DECODERS
     // ==========================================
 
     /**
@@ -89,30 +89,19 @@ namespace settingsDecoder {
     }
 
     /**
-     * Teleport a target sprite straight to the coordinates stored inside a record profile
+     * Get the raw saved location coordinate data as a standard text string variable (Oval Reporter)
      */
-    //% blockId="sd_decode_location"
-    //% block="load position from record $name onto sprite $sprite"
-    //% sprite.shadow=variables_get
+    //% blockId="sd_decode_location_str"
+    //% block="decode location string from record $name"
     //% weight=85
-    export function decodeLocation(name: string, sprite: Sprite): void {
-        if (!sprite) return;
+    export function decodeLocationStr(name: string): string {
         let rawData = settings.readString("LOC_" + name);
-        if (!rawData) return;
-
-        let commaIndex = rawData.indexOf(",");
-        if (commaIndex < 0) return;
-        let xStr = rawData.substr(0, commaIndex);
-        let yStr = rawData.substr(commaIndex + 1, rawData.length - (commaIndex + 1));
-
-        let targetX = parseInt(xStr);
-        let targetY = parseInt(yStr);
-
-        sprite.setPosition(targetX, targetY);
+        if (!rawData) return "";
+        return rawData;
     }
 
     // ==========================================
-    // 3. TILEMAP SUITE
+    // 3. TILEMAP ENCODERS & DECODERS
     // ==========================================
 
     /**
@@ -140,52 +129,15 @@ namespace settingsDecoder {
     }
 
     /**
-     * Load a saved tilemap structure template from memory and instantly force render it over the active scene
+     * Get the raw saved tilemap grid data layer layout as a standard text string variable (Oval Reporter)
      */
-    //% blockId="sd_decode_tilemap"
-    //% block="load and draw tilemap from record $name"
+    //% blockId="sd_decode_tilemap_str"
+    //% block="decode tilemap string from record $name"
     //% weight=75
-    export function decodeTilemap(name: string): void {
+    export function decodeTilemapStr(name: string): string {
         let rawData = settings.readString("TM_" + name);
-        if (!rawData) return;
-
-        let commaIndex1 = rawData.indexOf(",");
-        if (commaIndex1 < 0) return;
-        let wStr = rawData.substr(0, commaIndex1);
-        let w = parseInt(wStr);
-
-        let remaining = rawData.substr(commaIndex1 + 1, rawData.length - (commaIndex1 + 1));
-        let commaIndex2 = remaining.indexOf(",");
-        if (commaIndex2 < 0) return;
-        let hStr = remaining.substr(0, commaIndex2);
-        let h = parseInt(hStr);
-
-        let pixelsStr = remaining.substr(commaIndex2 + 1, remaining.length - (commaIndex2 + 1));
-
-        let scene = game.currentScene();
-        if (!scene || !scene.tileMap || !scene.tileMap.data) return;
-
-        let col = 0;
-        let row = 0;
-        while (pixelsStr.length > 0) {
-            let nextComma = pixelsStr.indexOf(",");
-            if (nextComma < 0) break;
-            let valStr = pixelsStr.substr(0, nextComma);
-            let val = parseInt(valStr);
-
-            scene.tileMap.data.setTile(col, row, val);
-
-            col++;
-            if (col >= w) {
-                col = 0;
-                row++;
-                if (row >= h) break;
-            }
-            pixelsStr = pixelsStr.substr(nextComma + 1, pixelsStr.length - (nextComma + 1));
-        }
-
-        // FIXED: Using the proper runtime tilemap reset trigger
-        scene.tileMap.setData(scene.tileMap.data);
+        if (!rawData) return "";
+        return rawData;
     }
 
     // ==========================================
