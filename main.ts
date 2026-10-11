@@ -1,5 +1,5 @@
 // ====================================================================
-// SETTINGS DECODER SUITE EXTENSION (STABLE COMPLETE RELEASE)
+// SETTINGS DECODER SUITE EXTENSION (FIXED PARSING VERSION)
 // ====================================================================
 
 //% color="#e91e63" icon="\uf1de" block="Settings Decoder"
@@ -13,7 +13,8 @@ namespace settingsDecoder {
      * Encode an image asset into a text string registry record
      */
     //% blockId="sd_encode_image"
-    //% block="encode image $img=screen as record $name"
+    //% block="encode image $img as record $name"
+    //% img.shadow=screen_image_picker
     //% weight=100
     export function encodeImage(img: Image, name: string): void {
         if (!img) return;
@@ -107,7 +108,8 @@ namespace settingsDecoder {
      * Encode a raw layer image layout out into flash registry settings strings
      */
     //% blockId="sd_encode_tilemap"
-    //% block="encode tilemap image data $tmMap=screen as $name"
+    //% block="encode tilemap data $tmMap as $name"
+    //% tmMap.shadow=screen_image_picker
     //% weight=60
     export function encodeTilemapImage(tmMap: Image, name: string): void {
         if (!tmMap) return;
@@ -125,7 +127,7 @@ namespace settingsDecoder {
     }
 
     /**
-     * Decode tilemap strings back into a clean Image canvas structure format
+     * Decode tilemap strings back into a clean Image canvas format
      */
     //% blockId="sd_decode_tilemap"
     //% block="decode tilemap image from record $name"
@@ -199,4 +201,3 @@ namespace settingsDecoder {
         for (let k of locKeys) settings.remove(k);
     }
 }
-
