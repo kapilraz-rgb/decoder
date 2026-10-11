@@ -1,5 +1,5 @@
 // ====================================================================
-// SETTINGS DECODER SUITE EXTENSION (STABLE SCENE TILEMAP SAVER)
+// SETTINGS DECODER SUITE EXTENSION (STABLE COMPLETE RELEASE)
 // ====================================================================
 
 //% color="#e91e63" icon="\uf1de" block="Settings Decoder"
@@ -94,14 +94,14 @@ namespace settingsDecoder {
     //% blockId="sd_decode_coordinates_str"
     //% block="get raw coordinate string $name"
     //% weight=70
-    export function decodeCoordinatesStr(name: string): string {
+    export function decodeCoordinatesStr(name: string): void {
         let rawData = settings.readString("LOC_" + name);
-        if (!rawData) return "";
-        return rawData;
+        if (!rawData) return ;
+        return ;
     }
 
     // ==========================================
-    // 3. CURRENT SCENE TILEMAP SAVING (FIXED)
+    // 3. CURRENT SCENE TILEMAP SAVING
     // ==========================================
 
     /**
@@ -119,7 +119,6 @@ namespace settingsDecoder {
         let h = tilemapData.height;
         let serializedData = w + "," + h + ",";
 
-        // Correct internal native compiler tracking loop
         for (let row = 0; row < h; row++) {
             for (let col = 0; col < w; col++) {
                 let tileVal = tilemapData.getTile(col, row);
@@ -132,6 +131,20 @@ namespace settingsDecoder {
     // ==========================================
     // 4. GENERAL SYSTEM MEMORY MANAGEMENT
     // ==========================================
+
+    /**
+     * Check if a specific save record key exists anywhere in the system memory
+     */
+    //% blockId="sd_encode_exists"
+    //% block="saved data record $name exists"
+    //% weight=45
+    export function encodeExists(name: string): boolean {
+        // Look inside all three prefixes to see if the record has been created
+        if (settings.exists("TM_" + name)) return true;
+        if (settings.exists("IMG_" + name)) return true;
+        if (settings.exists("LOC_" + name)) return true;
+        return false;
+    }
 
     /**
      * Clear specific memory profiles tied to tag target names
