@@ -1,5 +1,5 @@
 // ====================================================================
-// SETTINGS DECODER SUITE EXTENSION (FIXED PARSING VERSION)
+// SETTINGS DECODER SUITE EXTENSION (STABLE SCENE TILEMAP SAVER)
 // ====================================================================
 
 //% color="#e91e63" icon="\uf1de" block="Settings Decoder"
@@ -101,73 +101,32 @@ namespace settingsDecoder {
     }
 
     // ==========================================
-    // 3. TILEMAP ENCODERS & DECODERS
+    // 3. CURRENT SCENE TILEMAP SAVING (FIXED)
     // ==========================================
 
     /**
-     * Encode a raw layer image layout out into flash registry settings strings
+     * Automatically capture and save the active tilemap layout the player is currently inside
      */
-    //% blockId="sd_encode_tilemap"
-    //% block="encode tilemap data $tmMap as $name"
-    //% tmMap.shadow=screen_image_picker
+    //% blockId="sd_encode_current_tilemap"
+    //% block="encode current tilemap as $name"
     //% weight=60
-    export function encodeTilemapImage(tmMap: Image, name: string): void {
-        if (!tmMap) return;
-        let w = tmMap.width;
-        let h = tmMap.height;
+    export function encodeCurrentTilemap(name: string): void {
+        let scene = game.currentScene();
+        if (!scene || !scene.tileMap || !scene.tileMap.data) return;
+
+        let tilemapData = scene.tileMap.data;
+        let w = tilemapData.width;
+        let h = tilemapData.height;
         let serializedData = w + "," + h + ",";
 
+        // Correct internal native compiler tracking loop
         for (let row = 0; row < h; row++) {
             for (let col = 0; col < w; col++) {
-                let tileIndex = tmMap.getPixel(col, row);
-                serializedData += tileIndex + ",";
+                let tileVal = tilemapData.getTile(col, row);
+                serializedData += tileVal + ",";
             }
         }
         settings.writeString("TM_" + name, serializedData);
-    }
-
-    /**
-     * Decode tilemap strings back into a clean Image canvas format
-     */
-    //% blockId="sd_decode_tilemap"
-    //% block="decode tilemap image from record $name"
-    //% weight=50
-    export function decodeTilemapImage(name: string): Image {
-        let rawData = settings.readString("TM_" + name);
-        if (!rawData) return image.create(16, 16);
-
-        let commaIndex1 = rawData.indexOf(",");
-        if (commaIndex1 < 0) return image.create(16, 16);
-        let wStr = rawData.substr(0, commaIndex1);
-        let w = parseInt(wStr);
-
-        let remaining = rawData.substr(commaIndex1 + 1, rawData.length - (commaIndex1 + 1));
-        let commaIndex2 = remaining.indexOf(",");
-        if (commaIndex2 < 0) return image.create(w, 16);
-        let hStr = remaining.substr(0, commaIndex2);
-        let h = parseInt(hStr);
-
-        let layersImage = image.create(w, h);
-        let pixelsStr = remaining.substr(commaIndex2 + 1, remaining.length - (commaIndex2 + 1));
-
-        let col = 0;
-        let row = 0;
-        while (pixelsStr.length > 0) {
-            let nextComma = pixelsStr.indexOf(",");
-            if (nextComma < 0) break;
-            let valStr = pixelsStr.substr(0, nextComma);
-            let val = parseInt(valStr);
-            layersImage.setPixel(col, row, val);
-
-            col++;
-            if (col >= w) {
-                col = 0;
-                row++;
-                if (row >= h) break;
-            }
-            pixelsStr = pixelsStr.substr(nextComma + 1, pixelsStr.length - (nextComma + 1));
-        }
-        return layersImage;
     }
 
     // ==========================================
